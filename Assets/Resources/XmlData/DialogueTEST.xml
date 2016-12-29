@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dialogue>
+  <Information>
+    <DialogueName>Dialogue TEST</DialogueName>
+    <DialogueNode>
+      <numberNPCLines>2</numberNPCLines>
+      <numberPlayerAnswers>2</numberPlayerAnswers>
+      <isNodeDecision>0</isNodeDecision>
+      <identification>1</identification>
+    </DialogueNode>
+    <DialogueNode>
+      <numberNPCLines>1</numberNPCLines>
+      <numberPlayerAnswers>3</numberPlayerAnswers>
+      <isNodeDecision>0</isNodeDecision>
+      <identification>1</identification>
+    </DialogueNode>
+  </Information>
+  <Conversation>
+    <NPCLines>
+      <text>Hola</text>
+      <text>¿Cómo estás?</text>
+      </NPCLines>
+    <PlayerLines>
+      <text>1. Bien, ¿y tú?</text>
+      <text>2. ¿Qué te importa?</text>
+    </PlayerLines>
+    <NPCLines>
+      <text>Bien, mi nombre es NPCBien, mi nombre es NPCBien, mi nombre es NPCBien, mi nombre es NPCBien, mi nombre es NPCBien, mi nombre es NPCBien, mi nombre es NPC</text>
+    </NPCLines>
+    <PlayerLines>
+      <text>1. Yo soy Richard</text>
+      <text>2. Yo soy Jaimito</text>
+      <text>3. Yo soy Miguel</text>
+    </PlayerLines>
+  </Conversation>
+</Dialogue>
