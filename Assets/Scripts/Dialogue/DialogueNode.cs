@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Xml;
+using System.Collections.Generic;
 
 namespace DialogueSystem
 {
@@ -14,5 +15,7 @@ namespace DialogueSystem
         public int goToNode = 0;
 
         // Add a lines variable
+        public List<string> NPCLines = new List<string> ();
+        public List<string> PlayerLines = new List<string> ();
     }
 }

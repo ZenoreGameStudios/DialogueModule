@@ -10,16 +10,12 @@ namespace DialogueSystem
     [System.Serializable]
     public class DialogueManager : MonoBehaviour
     {
+        // Constants for Xml tags
+
         #region Text variables
         public TextAsset sceneDialogueScript;
         public string targetNPCTag, targetPlayerTag;
-
         private XmlDocument xmlDoc;
-#pragma warning disable 0649
-        private XmlNodeList NPCLinesList, playerLinesList;
-#pragma warning restore 0649
-        private List<string> textNPCLines, textPlayerLines;
-
         #endregion
         #region Information variables
         public string targetInfoTag;
@@ -30,8 +26,6 @@ namespace DialogueSystem
         private List<DialogueNode> dialogueNodes;
         private int currentNode = 0;
         private int currentNPCLine = 0;
-        private int displayedNPCLines = 0;
-        private int displayedPlayerLines = 0;
         private bool endOfConversation = false;
         #endregion
         #region UI variables
@@ -46,10 +40,7 @@ namespace DialogueSystem
 
         private void Start () {
             InitializeEverything ();
-
-            LoadXmlLines (NPCLinesList, textNPCLines, targetNPCTag);
-            LoadXmlLines (playerLinesList, textPlayerLines, targetPlayerTag);
-
+            
             LoadConversationInfo ();
             
             currentNPCLine = 0;
@@ -63,7 +54,7 @@ namespace DialogueSystem
                     NextTextLine ();
                 } else {
                     StopAllCoroutines ();
-                    textUIElements["textDisplayer"].text = textNPCLines[currentNPCLine + displayedNPCLines];
+                    textUIElements["textDisplayer"].text = dialogueNodes[currentNode].NPCLines[currentNPCLine];
                     currentNPCLine++;
                     typewritingText = false;
                 }
@@ -90,20 +81,18 @@ namespace DialogueSystem
                 textUIElements["textInfoKeys"].text = "Press a number to choose an option";
                 SetUpAnswerText ();
                 // Get next DialogueNode
-                displayedNPCLines += currentNPCLine;
+                //displayedNPCLines += currentNPCLine;
                 currentNPCLine = 0;
             } else {    // The NPC has not finished their lines
                 // The next line is displayed
                 textUIElements["textInfoKeys"].text = "Next (Space)";
-                StartCoroutine (AnimateText (textNPCLines[currentNPCLine + displayedNPCLines]));
+                StartCoroutine (AnimateText (dialogueNodes[currentNode].NPCLines[currentNPCLine]));
             }
         }
 
         private void InitializeEverything () {
             xmlDoc = new XmlDocument ();
             xmlDoc.LoadXml (sceneDialogueScript.text);
-            textNPCLines = new List<string> ();
-            textPlayerLines = new List<string> ();
             dialogueNodes = new List<DialogueNode> ();
 
             textUIElements = new Dictionary<string, Text> ();
@@ -123,9 +112,8 @@ namespace DialogueSystem
         }
         private void SetUpAnswerText () {
             for (int i = 0; i < dialogueNodes[currentNode].numberPlayerAnswers; i++) {
-                textUIElements[textPlayerAnswer + (i + 1)].text = textPlayerLines[i + displayedPlayerLines];
+                textUIElements[textPlayerAnswer + (i + 1)].text = dialogueNodes[currentNode].PlayerLines[i];
             }
-            displayedPlayerLines += dialogueNodes[currentNode].numberPlayerAnswers;
         }
         private void CheckPlayerAnswer (int chosenNumber) {
             // Validate input of the player
@@ -146,15 +134,15 @@ namespace DialogueSystem
             else if (Input.GetKeyDown (KeyCode.Alpha5)) { return 5; }
             else { return 0; }
         }
-        private void LoadXmlLines (XmlNodeList theNodeList, List<string> theTextList, string theTargetTag) {
-            theNodeList = xmlDoc.GetElementsByTagName (theTargetTag);
+        //private void LoadXmlLines (XmlNodeList theNodeList, List<string> theTextList, string theTargetTag) {
+        //    theNodeList = xmlDoc.GetElementsByTagName (theTargetTag);
 
-            foreach (XmlNode node in theNodeList) {
-                foreach (XmlNode text in node) {
-                    theTextList.Add (text.InnerText);
-                }
-            }
-        }
+        //    foreach (XmlNode node in theNodeList) {
+        //        foreach (XmlNode text in node) {
+        //            theTextList.Add (text.InnerText);
+        //        }
+        //    }
+        //}
         private void LoadConversationInfo () {
             dialogueNodesXml = xmlDoc.GetElementsByTagName (targetInfoTag);
 
@@ -164,11 +152,14 @@ namespace DialogueSystem
             
             foreach (XmlNode node in dialogueNodesXml) {
                 DialogueNode dn = new DialogueNode ();
+                dn.NPCLines.Clear ();
+                dn.PlayerLines.Clear ();
 
                 foreach (XmlNode item in node) {
                     if (item.Name == "numberNPCLines")      { dn.numberOfNPCLines = Int32.Parse (item.InnerText); }
                     if (item.Name == "numberPlayerAnswers") { dn.numberPlayerAnswers = Int32.Parse (item.InnerText); }
                     if (item.Name == "identification")      { dn.identification = Int32.Parse (item.InnerText); }
+                    if (item.Name == "nodeGoesTo")          { dn.goToNode = Int32.Parse (item.InnerText); }
                     if (item.Name == "isNodeDecision") {
                         if (Int32.Parse (item.InnerText) == 0) {
                             dn.isNodeDecision = false;
@@ -176,6 +167,18 @@ namespace DialogueSystem
                             dn.isNodeDecision = true;
                         } else {
                             Debug.LogError ("isNodeDecision in Xml does not equal 0 or 1");
+                        }
+                    }
+                    if (item.Name == "NPCLines") {
+                        XmlNodeList textList = item.ChildNodes;
+                        foreach (XmlNode n in textList) {
+                            dn.NPCLines.Add (n.InnerText);
+                        }
+                    }
+                    if (item.Name == "PlayerLines") {
+                        XmlNodeList textList = item.ChildNodes;
+                        foreach (XmlNode n in textList) {
+                            dn.PlayerLines.Add (n.InnerText);
                         }
                     }
                 }
